@@ -1,0 +1,64 @@
+Vòng đời của 1 request:
+- Client gửi request chạy public/index.php 
+- File index có 3 nhiệm vụ chính  để bootstrap framework: 
+    + Đăng ký cơ chế autoload('Autoload sẽ giúp chúng ta khởi tạo các class mà không cần phải require/include các file chứa class )
+    + Chuẩn bị để khởi động ứng dụng thông qua bootstrap/app.php: 
+                    - Khởi tạo Application để thuận tiện cho việc require/include các file khác trong quá trình chạy ứng dụng
+                    - Đăng ký các interface quan trọng ( HTTP, CLI và trình xử lý ngoại lệ.)
+                    - Trả về đối tượng ứng dụng
+    + Chạy ứng dụng (Run the application)
+- Tiếp theo, request sẽ được gửi đến HTTP/Kernel. Ở đây request phải vượt qua các middleware mặc định của laravel
+    + HTTP Kernel hoạt động theo cơ chế đơn giản: nhận request và trả về response.
+- Một trong những công việc quan trọng nhất của HTTP Kernel đó chính là :
+    + Đăng ký service provider (Register service provider)
+    + Khởi động service provider (Bootstrap service provider) : database, validation, router.
+    + Tất cả các service provider được cấu hình trong file config/app.php
+
+- Sau khi hoàn tất load service provider, các request sẽ được gửi đến router
+- Từ router đến controller request có hai hướng rẽ: 
+    + 1 vượt qua middleware tự tạo
+    + 2 đến controller
+- Sau đó Trả về response thông qua View
+
+*******************************
+Sessions:  là dữ liệu được lưu trên server , nó được tạo thành khi mình gọi hàm session_start()
+-Khi hàm session_start() được gọi sẽ tạo ra 1 cookie tương ứng chưa id của session đó 
+	khi xóa 1 cookie thì đồng thời mk cũng đã xóa mối liên kết đến id của session đó 
+		vd: khi ng dùng đăng nhập fb và nó xóa cookie tại trình duyện của nó thì 
+		đồng nghĩa với việc mối liên kết với session của nó
+		bị mất đi và thằng ng dùng phải đăng nhập lại vào fb
+- Có 2 cách lưu trữ session:
+    + Lưu trữ trong file tại thư mục storage/framework/sessions
+    + Lưu trữ trong database 
+        -cookie lưu trên máy khách
+	+ Cú pháp tạo cookie : setcookie($cookie_name, $cookie_value, time() + (86400 * 30));
+	+ Để gọi giá trị cho nó ra : $_COOKIE['key'];
+    	+ time() + (86400 * 30) : time là hàm trong php lấy ra thời gian hiện tại dưới dạng số + thêm số giây cho cookie tồn tại
+Session có thêm 1 ưu điểm nữa là: Nếu trình duyệt từ chối lưu trữ cookies chúng ta vẫn có thể 
+				truyền session từ trang này sang trang khác thông qua url:
+
+-Nếu session lưu trong file vậy mỗi phiên session sẽ tương ứng 1 file 
+	nếu có 1 triệu người dùng vậy sẽ sinh ra 1 triệu file session. 
+	Mình không thể quản lý cũng như biết được. 
+	Nên lưu vào database nó sẽ tương ứng với 1 triệu record mình có thể dễ dàng thấy và quản lý nó
+-Session sẽ được lưu cả key và value vào db
+-Nếu lưu vào file chỉ code php không sử dụng laravel thì session file lưu ở folder xampp/tmp
+-Còn nếu code trong laravel session file sẽ lưu ở storage/framework/sessions
+-memcached/ redis: session sẽ hoạt động tốt hơn nếu lưu vào các driver này, dựa trên cache.
+-SESSION_LIFETIME=120 trong file env
+    + Để xóa 1 giá trị session em thường gán lại giá trị cho nó về false hoặc null
+	+ Để xóa toàn bộ session mình sử dụng hàm session_destroy();
+
+*******************************
+OOP lập trình hướng đối tượng nó chính là class bao gồm biến và hàm 
+    - có 4 tính chất :
+        +Tính kế thừa: class con kế thừa biến và hàm của class cha thông qua từ khóa extend
+            - Tạo 1 đối tượng từ class sử dụng từ khóa new
+        
+        + Tính đóng gói : liên quan đến việc ẩn các thuộc tính và chỉ để lộ các phương thức sử dụng các từ khoá public, private và protected:
+            - Bảo vệ trạng thái bên trong của một đối tượng – quyền truy cập vào các thuộc tính lớp thông qua các phương thức như get và set
+            - private : chỉ có thể gọi bên trong class đó
+            - protected : gọi được bên trong class đó và các class con kế thừa nó
+            - public : gọi được bên trong class đó - class con kế thừa nó - và gọi được ở bên ngoài
+
+    
